@@ -2,9 +2,18 @@ package org.example;
 
 import org.example.model.DateTimePart;
 
-import java.time.*;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.DateTimeException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Locale;
+import java.time.ZoneOffset;
 public class DateTimeApi {
 
   /**
@@ -23,7 +32,7 @@ public class DateTimeApi {
 
     switch (datePart) {
       case FULL :
-        return String.valueOf(DateTimeFormatter.ISO_DATE);
+        return String.valueOf(LocalDate.now());
       case YEAR :
         return String.valueOf(now.getYear());
       case MONTH :
@@ -59,28 +68,28 @@ public class DateTimeApi {
    * Given the time and the number of hours to add, return the changed time.
    */
   public LocalTime addHours(LocalTime localTime, Integer hoursToAdd) {
-    return null;
+    return localTime.plusHours(hoursToAdd);
   }
 
   /**
    * Given the time and the number of minutes to add, return the changed time.
    */
   public LocalTime addMinutes(LocalTime localTime, Integer minutesToAdd) {
-    return null;
+    return localTime.plusMinutes(minutesToAdd);
   }
 
   /**
    * Given the time and the number of seconds to add, return the changed time.
    */
   public LocalTime addSeconds(LocalTime localTime, Integer secondsToAdd) {
-    return null;
+    return localTime.plusSeconds(secondsToAdd);
   }
 
   /**
    * Given the date and the number of weeks to add, return the changed date.
    */
   public LocalDate addWeeks(LocalDate localDate, Integer numberOfWeeks) {
-    return null;
+    return localDate.plusWeeks(numberOfWeeks);
   }
 
   /**
@@ -93,7 +102,15 @@ public class DateTimeApi {
    * if `someDate` is today;
    */
   public String beforeOrAfter(LocalDate someDate) {
-    return "Today";
+    LocalDate currentDate = LocalDate.now();
+
+    if (someDate.isAfter(currentDate)) {
+      return someDate + " is after " + currentDate;
+    } else if (someDate.isBefore(currentDate)) {
+      return someDate + " is before " + currentDate;
+    } else {
+      return someDate + " is today";
+    }
   }
 
   /**
@@ -101,7 +118,9 @@ public class DateTimeApi {
    * return LocalDateTime in this timezone.
    */
   public LocalDateTime getDateInSpecificTimeZone(String dateInString, String zone) {
-    return null;
+    Instant instant = Instant.parse(dateInString);
+    ZonedDateTime zonedDateTime = instant.atZone(ZoneId.of(zone));
+    return zonedDateTime.toLocalDateTime();
   }
 
   /**
@@ -115,7 +134,9 @@ public class DateTimeApi {
    * OffsetDateTime is recommended to use for storing date values in a database.
    */
   public OffsetDateTime offsetDateTime(LocalDateTime localTime) {
-    return null;
+    ZoneId zone = ZoneId.of("+02:00");
+    ZoneOffset offset = zone.getRules().getOffset(localTime);
+    return OffsetDateTime.of(localTime, offset);
   }
 
   /**
@@ -123,7 +144,12 @@ public class DateTimeApi {
    * return LocalDate object built from this String.
    */
   public LocalDate parseDate(String date) {
-    return null;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+    try {
+      return LocalDate.parse(date, formatter);
+    } catch (DateTimeParseException e) {
+      return null;
+    }
   }
 
   /**
@@ -131,7 +157,8 @@ public class DateTimeApi {
    * return LocalDate object built from this String.
    */
   public LocalDate customParseDate(String date) {
-    return null;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMM yyyy");
+    return LocalDate.parse(date, formatter);
   }
 
   /**
@@ -141,6 +168,7 @@ public class DateTimeApi {
    * Example: "01 January 2000 18:00".
    */
   public String formatDate(LocalDateTime dateTime) {
-    return null;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm", Locale.ENGLISH);
+    return dateTime.format(formatter);
   }
 }
